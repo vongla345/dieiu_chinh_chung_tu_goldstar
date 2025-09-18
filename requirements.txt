@@ -1,0 +1,7 @@
+PyMuPDF
+streamlit
+reportlab
+opencv-python-headless
+numpy
+pdfplumber
+streamlit_pdf_viewer
