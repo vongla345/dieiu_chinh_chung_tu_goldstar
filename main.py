@@ -8,12 +8,14 @@ from streamlit_pdf_viewer import pdf_viewer
 from utils import insert_patch_all_pages, create_text, get_date
 
 DATE_MILTSTONE = datetime.date(2025,7,1)
+HEADING_MILSTONE = datetime.date(2025,8,1)
 
 setting = {
     'type': None,
     'patch_path': None,
     'pixel_coords': None,
     'pixel_coords_adress': None,
+    'pixel_coords_blank': None,
     'date': None,
     'metadata': None,
     'file_date': None,
@@ -43,6 +45,7 @@ if uploaded_file:
         setting['pixel_coords'] = (1250, 1750, 1480, 1530)
         setting['file_date'] = get_date(pdf_bytes, 'thu_tien')
         setting['pixel_coords_adress'] = (1800, 2350, 287, 387)
+        setting['pixel_coords_blank'] = (100, 7000, 10, 150)
         
         if st.checkbox("Chỉnh sửa ngày"):
             setting['date'] = st.date_input("Nhập ngày giao hàng cần sửa", format='DD-MM-YYYY')
@@ -73,7 +76,7 @@ if uploaded_file:
         setting['pixel_coords'] = (3570, 4070, 997, 1067)
         setting['pixel_coords_adress'] = (1930, 2830, 268, 528)
         setting['file_date'] = get_date(pdf_bytes, 'xuat_kho')
-        
+        setting['pixel_coords_blank'] = (100, 5000, 50, 150)
 
             
     
@@ -108,13 +111,30 @@ if uploaded_file:
                     pixel_coords=setting['pixel_coords_adress'],
                     dpi=300,
                 )
-        elif setting['type'] == 'xuat_kho' and setting['file_date'] and setting['file_date'] < DATE_MILTSTONE:
-            doc = insert_patch_all_pages(
-                doc=doc,
-                patch_path='template/old_adress_xuat_kho.png',
-                pixel_coords=setting['pixel_coords_adress'],
-                dpi=300,
-            )
+            
+            if setting['date'] < HEADING_MILSTONE:
+                doc = insert_patch_all_pages(
+                    doc=doc,
+                    patch_path='template/blank.png',
+                    pixel_coords=setting['pixel_coords_blank'],
+                    dpi=300,
+                )
+        elif setting['type'] == 'xuat_kho' and setting['file_date']:
+            if setting['file_date'] < DATE_MILTSTONE:
+                doc = insert_patch_all_pages(
+                    doc=doc,
+                    patch_path='template/old_adress_xuat_kho.png',
+                    pixel_coords=setting['pixel_coords_adress'],
+                    dpi=300,
+                )
+            
+            if setting['file_date'] < HEADING_MILSTONE:
+                doc = insert_patch_all_pages(
+                    doc=doc,
+                    patch_path='template/blank.png',
+                    pixel_coords=setting['pixel_coords_blank'],
+                    dpi=300,
+                )
         
         output = io.BytesIO()
         doc.save(output)
